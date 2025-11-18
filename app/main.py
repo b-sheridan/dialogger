@@ -1,12 +1,17 @@
-from fastapi import FastAPI
+from __future__ import annotations
 
-from app.routers import titles
+from fastapi import APIRouter, FastAPI
 
-app = FastAPI()
-
-app.include_router(titles.router, prefix='/titles', tags=['titles'])
+from app.routers import scenes, titles
 
 
-@app.get('/health')
-def health():
-    return {'status': 'ok'}
+api = APIRouter()
+api.include_router(scenes.router, prefix='/scenes', tags=['scenes'])
+api.include_router(titles.router, prefix='/titles', tags=['titles'])
+
+app = FastAPI(
+    openapi_url='/api/openapi.json',
+    docs_url='/api/docs',
+    redoc_url='/api/redoc',
+)
+app.include_router(api, prefix='/api')
