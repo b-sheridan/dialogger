@@ -1,5 +1,6 @@
 alembic
 fastapi
+openai
 psycopg[binary]
 pydantic
 python-dotenv
