@@ -6,6 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from app.config import DATABASE_URL
 from app.models import Base
 
+if not DATABASE_URL:
+    raise RuntimeError('DATABASE_URL is not set')
 
 # SQLAlchemy engine (sync)
 engine = create_engine(
