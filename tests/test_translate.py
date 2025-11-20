@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from app.models import Entry, Scene, Project
-from app.services.translate import stream_ocr_and_translation, stream_translation
+from app.services.translate import stream_text_and_translation, stream_translation
 
 
 @pytest.mark.asyncio
@@ -24,12 +24,12 @@ async def test_stream_translation():
 
 @pytest.mark.asyncio
 @pytest.mark.openai
-async def test_stream_ocr_and_translation():
+async def test_stream_text_and_translation():
     project = Project(name='Xenogears')
     scene = Scene(project=project)
     entry = Entry(scene=scene, image_path='tests/data/xenogears-320-240.png')
 
-    async for (text, translation) in stream_ocr_and_translation(entry):
+    async for (text, translation) in stream_text_and_translation(entry):
         entry.text = text
         entry.translation = translation
 

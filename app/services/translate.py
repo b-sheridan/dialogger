@@ -37,7 +37,7 @@ async def stream_translation(entry: Entry) -> AsyncGenerator[str]:
             yield event.delta
 
 
-async def stream_ocr_and_translation(entry: Entry) -> AsyncGenerator[tuple[str, str]]:
+async def stream_text_and_translation(entry: Entry) -> AsyncGenerator[tuple[str, str]]:
     assert entry.image_path, 'Entry must have been created from an image'
 
     prompt = [
