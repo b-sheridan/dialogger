@@ -22,22 +22,22 @@ class Scene(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     project_id: Mapped[int] = mapped_column(ForeignKey('projects.id'), nullable=False)
-    name: Mapped[str | None] = mapped_column(String(200), nullable=True)
     position: Mapped[int] = mapped_column(nullable=False, default=0)
+    name: Mapped[str | None] = mapped_column(String(200))
 
     project: Mapped[Project] = relationship(back_populates='scenes')
-    lines: Mapped[list[Line]] = relationship(back_populates='scene', cascade='all, delete-orphan', order_by='Line.position')
+    entries: Mapped[list[Entry]] = relationship(back_populates='scene', cascade='all, delete-orphan', order_by='Entry.position')
 
 
-class Line(Base):
-    __tablename__ = 'lines'
+class Entry(Base):
+    __tablename__ = 'entries'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     scene_id: Mapped[int] = mapped_column(ForeignKey('scenes.id'), nullable=False)
     position: Mapped[int] = mapped_column(nullable=False, default=0)
-    speaker: Mapped[str | None] = mapped_column(Text, nullable=True)
-    original_text: Mapped[str] = mapped_column(Text, nullable=False)
-    translated_text: Mapped[str | None] = mapped_column(Text, nullable=True)
-    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    image_path: Mapped[str | None] = mapped_column(String(500))  # If the Entry came from a screenshot
+    text: Mapped[str] = mapped_column(Text)  # NULL if OCR not yet run on image
+    translation: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[str | None] = mapped_column(Text)
 
-    scene: Mapped[Scene] = relationship(back_populates='lines')
+    scene: Mapped[Scene] = relationship(back_populates='entries')

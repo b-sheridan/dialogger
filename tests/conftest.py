@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.models import Base, Line, Project, Scene
+from app.models import Base, Entry, Project, Scene
 
 
 # Use SQLite in-memory DB for tests
@@ -54,17 +54,11 @@ def example_scene(session):
     scene = Scene(
         project=xenogears,
         name='プロローグ、フェイとアルル',
-        lines=[
-            Line(
-                speaker='フェイ',
-                original_text="""やあ、アルル。
-それが花嫁のドレスかい？""",
-            ),
-            Line(
-                speaker='アルル',
-                original_text="""フェイ！？
-ああ……、ビックリした！""",
-            ),
+        entries=[
+            Entry(text="""フェイ：やあ、アルル。
+それが花嫁のドレスかい？"""),
+            Entry(text="""アルル：フェイ！？
+ああ……、ビックリした！"""),
         ],
     )
 

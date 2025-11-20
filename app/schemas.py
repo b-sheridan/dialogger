@@ -32,17 +32,17 @@ class SceneOut(BaseModel):
         orm_mode = True
 
 
-class LineCreate(BaseModel):
+class EntryCreate(BaseModel):
     scene_id: int
-    speaker_id: int | None = None
     text: str
 
 
-class LineOut(BaseModel):
+class EntryOut(BaseModel):
     id: int
     scene_id: int
-    speaker_id: int | None
     text: str
+    translation: str | None
+    notes: str | None
 
     class Config:
         orm_mode = True

@@ -20,4 +20,4 @@ def test_can_insert_and_query_project(session):
 
 def test_example_scene(example_scene):
     assert example_scene.id is not None
-    assert example_scene.lines != []
+    assert example_scene.entries != []

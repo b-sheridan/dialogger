@@ -5,29 +5,26 @@ from typing import AsyncGenerator
 from openai import AsyncOpenAI
 
 from app.config import OPENAI_API_KEY, OPENAI_MODEL
-from app.models import Line
+from app.models import Entry
 
 client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
 
-def get_prompt(line: Line) -> str:
+def get_prompt(entry: Entry) -> str:
     parts = [
-        f'Translate a line of dialog from {line.scene.project.name}.',
-        'Return ONLY the translation for the last line of dialog.',
+        f'Translate a text from {entry.scene.project.name}.',
+        'Return ONLY the translation for the last entry.',
     ]
-    if line.scene.name:
-        parts.append(f'Scene: {line.scene.name}.')
-    for dialog in line.scene.lines:
+    if entry.scene.name:
+        parts.append(f'Scene: {entry.scene.name}.')
+    for other_entry in entry.scene.entries:
         parts.append('-------')
-        if dialog.speaker:
-            parts.append(f'{dialog.speaker}: {dialog.original_text}')
-        else:
-            parts.append(dialog.original_text)
+        parts.append(other_entry.text)
     return '\n'.join(parts)
 
 
-async def stream_translation(line: Line) -> AsyncGenerator[str]:
-    prompt = get_prompt(line)
+async def stream_translation(entry: Entry) -> AsyncGenerator[str]:
+    prompt = get_prompt(entry)
     stream = await client.responses.create(model=OPENAI_MODEL, input=prompt, stream=True)
     async for event in stream:
         match event.type:
