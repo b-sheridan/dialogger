@@ -32,9 +32,11 @@ async def stream_translation(entry: Entry) -> AsyncGenerator[str]:
         stream=True,
     )
 
+    text = ''
     async for event in stream:
         if event.type == 'response.output_text.delta':
-            yield event.delta
+            text += event.delta
+            yield text
 
 
 async def stream_text_and_translation(entry: Entry) -> AsyncGenerator[tuple[str, str]]:
