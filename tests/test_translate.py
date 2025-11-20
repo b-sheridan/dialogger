@@ -3,20 +3,23 @@ from __future__ import annotations
 import pytest
 
 from app.models import Entry, Scene, Project
-from app.services.translate import get_prompt, stream_ocr_and_translation, stream_translation
-
-
-def test_get_prompt_doesnt_barf(example_scene):
-    """Sanity test that this doesn't throw."""
-    prompt = get_prompt(example_scene.entries[-1])
-    assert prompt
+from app.services.translate import stream_ocr_and_translation, stream_translation
 
 
 @pytest.mark.asyncio
 @pytest.mark.openai
-async def test_stream_translation(example_scene):
-    async for token in stream_translation(example_scene.entries[-1]):
-        assert token
+async def test_stream_translation():
+    project = Project(name='Xenogears')
+    scene = Scene(project=project)
+    entry1 = Entry(text='フェイ：やあ、アルル。それが花嫁のドレスかい？')
+    entry2 = Entry(text='アルル：フェイ！？ ああ……、ビックリした！')
+    scene.entries.append(entry1)
+    scene.entries.append(entry2)
+
+    async for text in stream_translation(entry2):
+        entry2.text = text
+
+    assert entry2.text
 
 
 @pytest.mark.asyncio

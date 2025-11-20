@@ -45,24 +45,3 @@ def session():
         yield db
     finally:
         db.close()
-
-
-@pytest.fixture
-def example_scene(session):
-    xenogears = Project(name='Xenogears')
-
-    scene = Scene(
-        project=xenogears,
-        name='プロローグ、フェイとアルル',
-        entries=[
-            Entry(text="""フェイ：やあ、アルル。
-それが花嫁のドレスかい？"""),
-            Entry(text="""アルル：フェイ！？
-ああ……、ビックリした！"""),
-        ],
-    )
-
-    session.add(scene)
-    session.commit()
-
-    return scene

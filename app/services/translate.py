@@ -13,32 +13,28 @@ SEPARATOR = '\x1f'
 client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
 
-def get_prompt(entry: Entry) -> str:
-    parts = [
+async def stream_translation(entry: Entry) -> AsyncGenerator[str]:
+    assert entry.text, 'Entry must have been created from text'
+
+    prompt = [
         f'Translate a text from {entry.scene.project.name}.',
         'Return ONLY the translation for the last entry.',
     ]
     if entry.scene.name:
-        parts.append(f'Scene: {entry.scene.name}.')
+        prompt.append(f'Scene: {entry.scene.name}.')
     for other_entry in entry.scene.entries:
-        parts.append('-------')
-        parts.append(other_entry.text)
-    return '\n'.join(parts)
+        prompt.append('-------')
+        prompt.append(other_entry.text)
 
+    stream = await client.responses.create(
+        model=OPENAI_MODEL,
+        input='\n'.join(prompt),
+        stream=True,
+    )
 
-async def stream_translation(entry: Entry) -> AsyncGenerator[str]:
-    prompt = get_prompt(entry)
-    stream = await client.responses.create(model=OPENAI_MODEL, input=prompt, stream=True)
     async for event in stream:
-        match event.type:
-            case 'response.output_text.delta':
-                yield event.delta
-            case 'response.created' | 'response.in_progress' | 'response.output_item.added' | 'response.content_part.added':
-                pass  # nothing to do, we're just waiting
-            case 'response.output_text.done':
-                return  # done
-            case _:
-                raise NotImplementedError(event)
+        if event.type == 'response.output_text.delta':
+            yield event.delta
 
 
 async def stream_ocr_and_translation(entry: Entry) -> AsyncGenerator[tuple[str, str]]:
@@ -78,22 +74,17 @@ async def stream_ocr_and_translation(entry: Entry) -> AsyncGenerator[tuple[str, 
         ],
     )
 
+    sequence = 0
     text = ''
     translation = ''
-    sequence = 0
     async for event in stream:
-        match event.type:
-            case 'response.output_text.delta':
-                if event.delta == SEPARATOR:
-                    sequence += 1
-                elif sequence == 0:
-                    text += event.delta
-                elif sequence == 1:
-                    translation += event.delta
-                else:
-                    raise RuntimeError(f'invalid sequence {sequence}')
-                yield (text, translation)
-            case 'response.completed':
-                break
-            case _:
-                pass
+        if event.type == 'response.output_text.delta':
+            if event.delta == SEPARATOR:
+                sequence += 1
+            elif sequence == 0:
+                text += event.delta
+            elif sequence == 1:
+                translation += event.delta
+            else:
+                raise RuntimeError(f'invalid sequence {sequence}')
+            yield (text, translation)

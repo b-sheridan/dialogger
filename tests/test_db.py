@@ -16,8 +16,3 @@ def test_can_insert_and_query_project(session):
     assert result is not None
     assert result.name == 'Test Project'
     assert result.id
-
-
-def test_example_scene(example_scene):
-    assert example_scene.id is not None
-    assert example_scene.entries != []
