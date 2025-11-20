@@ -11,10 +11,10 @@ router = APIRouter()
 
 
 @router.get('/', response_model=list[SceneOut])
-def list_scenes(title_id: int | None = None, db: Session = Depends(get_db)):
+def list_scenes(project_id: int | None = None, db: Session = Depends(get_db)):
     q = db.query(Scene)
-    if title_id is not None:
-        q = q.filter(Scene.title_id == title_id)
+    if project_id is not None:
+        q = q.filter(Scene.project_id == project_id)
     return q.order_by(Scene.id).all()
 
 
